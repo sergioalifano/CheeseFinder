@@ -12,6 +12,8 @@ namespace CheeseFinder
         {
             CheeseNibbler myCheese = new CheeseNibbler();
             myCheese.PlayGame();
+
+            Console.ReadKey();
         }
     }
 
@@ -51,7 +53,7 @@ namespace CheeseFinder
             {
                 for (x = 0; x < 10; x++)
                 {
-                    Grid[x, y] = new Point(x, y);  //all the points have status=Empty
+                    Grid[x, y] = new Point(x, y);  
                 }
             }
 
@@ -83,12 +85,13 @@ namespace CheeseFinder
 
             //put cheese in the grid
             this.Grid[xCheese,yCheese].Status=this.Cheese.Status;
-
         }
 
         public void DrawGrid()
         {
             Console.Clear();
+            Console.WriteLine("Use the numeric keypad to move\n\n");
+
             for (int y = 0; y < 10; y++)
             {
                 for (int x = 0; x < 10; x++)
@@ -96,22 +99,30 @@ namespace CheeseFinder
                     Point myPoint = this.Grid[x, y];
                     if (myPoint.Status == Mouse.Status)
                     {
-                        Console.Write("[M]");
+                        Console.Write("[ M ]");
                     }
                     else if (myPoint.Status == Cheese.Status)
                     {
-                        Console.Write("[C]");
+                        Console.Write("[ ");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write("C");
+                        Console.ResetColor();
+                        Console.Write(" ]");
                     }
                     else
                     {
-                        Console.Write("[ ]");
+                        Console.Write("[   ]");
                     }
                 }
                 Console.WriteLine();
             }
         }
         ConsoleKeyInfo input; 
-        //if the input is valid call ValidMove() to check if the new position is still inside the Grid
+
+        /// <summary>
+        /// if the input is valid call ValidMove() to check if the new position is still inside the Grid
+        /// </summary>
+        /// <returns></returns>
         public ConsoleKey GetUserMove()
         {
             bool validMove = false;
@@ -119,7 +130,8 @@ namespace CheeseFinder
             while (!validMove)
             {
                 input = Console.ReadKey();
-                if (input.Key == ConsoleKey.LeftArrow || input.Key == ConsoleKey.RightArrow || input.Key == ConsoleKey.DownArrow || input.Key == ConsoleKey.UpArrow)
+                if (input.Key == ConsoleKey.NumPad1 || input.Key == ConsoleKey.NumPad4 || input.Key == ConsoleKey.NumPad7 || input.Key == ConsoleKey.NumPad8 || input.Key == ConsoleKey.NumPad9 || input.Key == ConsoleKey.NumPad6 || input.Key == ConsoleKey.NumPad3 || input.Key == ConsoleKey.NumPad2)
+                //if (input.Key == ConsoleKey.LeftArrow || input.Key == ConsoleKey.RightArrow || input.Key == ConsoleKey.DownArrow || input.Key == ConsoleKey.UpArrow)
                 {
                     if (ValidMove(input.Key))
                     {
@@ -131,7 +143,6 @@ namespace CheeseFinder
                     Console.WriteLine("Invalid move");
                     
                 }
-
             }
                                       
             return input.Key;
@@ -146,29 +157,57 @@ namespace CheeseFinder
 
             switch (input)
             {
-                case ConsoleKey.LeftArrow:
+                case ConsoleKey.NumPad1:
+                    if (mousePositionX == 0 || mousePositionY == 9) 
+                    {
+                        Console.WriteLine("Invalid Move. Out of the grid");
+                        return false;
+                    }
+                    break;
+                case ConsoleKey.NumPad4:
                     if (mousePositionX == 0)
                     {
                         Console.WriteLine( "Invalid Move. Out of the grid");
                         return false;
                     }
                     break;
-                case ConsoleKey.RightArrow:
+                case ConsoleKey.NumPad7:
+                    if (mousePositionX == 0 || mousePositionY == 0) 
+                    {
+                        Console.WriteLine("Invalid Move. Out of the grid");
+                        return false;
+                    }
+                    break;
+                case ConsoleKey.NumPad8:
+                     if (mousePositionY == 0)
+                    {
+                          Console.WriteLine("Invalid Move. Out of the grid");
+                        return false;
+                    }                   
+                    break;
+                case ConsoleKey.NumPad9:
+                     if (mousePositionX == 9 || mousePositionY == 0) 
+                    {
+                        Console.WriteLine("Invalid Move. Out of the grid");
+                        return false;
+                    }
+                    break;
+                case ConsoleKey.NumPad6:
                     if (mousePositionX == 9)
                     {
                         Console.WriteLine("Invalid Move. Out of the grid");
                         return false;
                     }
                     break;
-                case ConsoleKey.UpArrow:
-                    if (mousePositionY == 0)
+                case ConsoleKey.NumPad3:
+                    if (mousePositionX == 9 || mousePositionY == 9) 
                     {
                         Console.WriteLine("Invalid Move. Out of the grid");
                         return false;
-                    }                   
+                    }
                     break;
-                case ConsoleKey.DownArrow:
-                    if (mousePositionY == 9)
+                case ConsoleKey.NumPad2:
+                     if (mousePositionY == 9)
                     {
                         Console.WriteLine("Invalid Move. Out of the grid");
                         return false;
@@ -188,29 +227,39 @@ namespace CheeseFinder
             //change coordinates of the Mouse to move position
             switch (input)
             {
-                case ConsoleKey.LeftArrow: Mouse.X -= 1;
+                case ConsoleKey.NumPad1: { Mouse.X -= 1; Mouse.Y += 1; }
                     break;
-                case ConsoleKey.RightArrow: Mouse.X += 1;
+                case ConsoleKey.NumPad4: { Mouse.X -= 1; }
                     break;
-                case ConsoleKey.DownArrow: Mouse.Y += 1;
+                case ConsoleKey.NumPad7: { Mouse.X -= 1; Mouse.Y -= 1; }
                     break;
-                case ConsoleKey.UpArrow: Mouse.Y -= 1;
+                case ConsoleKey.NumPad8: { Mouse.Y -= 1; }
                     break;
+                case ConsoleKey.NumPad9: { Mouse.X += 1; Mouse.Y -= 1; }
+                    break;
+                case ConsoleKey.NumPad6: { Mouse.X += 1;}
+                    break;
+                case ConsoleKey.NumPad3: { Mouse.X += 1; Mouse.Y += 1; }
+                    break;
+                case ConsoleKey.NumPad2: { Mouse.Y += 1; }
+                    break;
+
             }
-            
+
             //check if the point in the Grid has the cheese
             Point checkForCheese = this.Grid[Mouse.X, Mouse.Y];
+
+            this.Grid[previousPositionX, previousPositionY].Status = Point.PointStatus.Empty;
+
             if (checkForCheese.Status == Cheese.Status)
-            {
+            {                
+                this.Grid[Mouse.X, Mouse.Y].Status = Mouse.Status;
                 return true;
             }
             else
-            {
-                //set previous point status to Empty
-                this.Grid[previousPositionX, previousPositionY].Status = Point.PointStatus.Empty;
-
+            {                            
                 //set the new position status to Mouse
-                this.Grid[Mouse.X, Mouse.Y].Status = Point.PointStatus.Mouse;
+                this.Grid[Mouse.X, Mouse.Y].Status = Mouse.Status;
                 return false;
             }
         }
@@ -218,9 +267,10 @@ namespace CheeseFinder
         public void PlayGame()
         {
             bool found = false;
-
+            
             while (!found)
             {
+               
                 DrawGrid();
                 ConsoleKey userMove = GetUserMove();
                 if (MoveMouse(userMove))
@@ -230,6 +280,8 @@ namespace CheeseFinder
                 }
                 this.Round++;
             }
+            DrawGrid();
+            Console.WriteLine("It took you {0} round to get the cheese",this.Round);
         }
     }
 
