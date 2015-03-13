@@ -22,7 +22,7 @@ namespace CheeseFinder
     {
         public enum PointStatus
         {
-            Empty,Cheese,Mouse
+            Empty,Cheese,Mouse,Obstacle
         }
         public int X { get; set; }
         public int Y { get; set; }
@@ -42,6 +42,7 @@ namespace CheeseFinder
         public Point[,] Grid { get; set; }
         public Point Mouse { get; set; }
         public Point Cheese { get; set; }
+        public Point Obstacle { get; set; }
         public int Round { get; set; }
 
         public CheeseNibbler()
@@ -49,9 +50,9 @@ namespace CheeseFinder
             int x, y;
             //initialize the Grid
             this.Grid = new Point[10, 10];
-            for (y = 0; y < 10; y++)
+            for (y = 0; y < this.Grid.GetLength(1); y++)
             {
-                for (x = 0; x < 10; x++)
+                for (x = 0; x < this.Grid.GetLength(0); x++)
                 {
                     Grid[x, y] = new Point(x, y);  
                 }
@@ -85,16 +86,33 @@ namespace CheeseFinder
 
             //put cheese in the grid
             this.Grid[xCheese,yCheese].Status=this.Cheese.Status;
+
+            //create a position for the obstacle
+            do
+            {
+                x = gnr.Next(0, 10);
+                y = gnr.Next(0, 10);
+            }
+            while (this.Cheese.X == x || this.Mouse.X ==x);
+
+            // initalize the Obstacle 
+            this.Obstacle = new Point(x, y);
+
+            //put the obstacle into the grid
+            this.Obstacle.Status = Point.PointStatus.Obstacle;
+            this.Grid[x, y].Status = this.Obstacle.Status;
+
         }
 
         public void DrawGrid()
         {
             Console.Clear();
-            Console.WriteLine("Use the numeric keypad to move\n\n");
-
-            for (int y = 0; y < 10; y++)
+            Console.WriteLine("Use the numeric keypad to move\n");
+           // string mouse = "\u260e";
+         //   Console.WriteLine(mouse);
+            for (int y = 0; y < this.Grid.GetLength(1); y++)
             {
-                for (int x = 0; x < 10; x++)
+                for (int x = 0; x < this.Grid.GetLength(0); x++)
                 {
                     Point myPoint = this.Grid[x, y];
                     if (myPoint.Status == Mouse.Status)
@@ -108,6 +126,10 @@ namespace CheeseFinder
                         Console.Write("C");
                         Console.ResetColor();
                         Console.Write(" ]");
+                    }
+                    else if (myPoint.Status == Obstacle.Status)
+                    {
+                        Console.Write("[ | ]");
                     }
                     else
                     {
@@ -129,20 +151,15 @@ namespace CheeseFinder
             
             while (!validMove)
             {
-                input = Console.ReadKey();
+                input = Console.ReadKey(true);
                 if (input.Key == ConsoleKey.NumPad1 || input.Key == ConsoleKey.NumPad4 || input.Key == ConsoleKey.NumPad7 || input.Key == ConsoleKey.NumPad8 || input.Key == ConsoleKey.NumPad9 || input.Key == ConsoleKey.NumPad6 || input.Key == ConsoleKey.NumPad3 || input.Key == ConsoleKey.NumPad2)
-                //if (input.Key == ConsoleKey.LeftArrow || input.Key == ConsoleKey.RightArrow || input.Key == ConsoleKey.DownArrow || input.Key == ConsoleKey.UpArrow)
                 {
                     if (ValidMove(input.Key))
                     {
                         validMove = true;
                     }
                 }
-                else
-                {
-                    Console.WriteLine("Invalid move");
-                    
-                }
+                else {Console.WriteLine("Invalid move");}
             }
                                       
             return input.Key;
